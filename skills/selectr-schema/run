@@ -1,0 +1,42 @@
+#!/bin/sh
+# Runs the schema CLI, rebuilding it first when the sources are newer than the bundle.
+# Exit codes follow the CLI's: a failed rebuild is 2, like any input the CLI cannot use.
+set -e
+
+# Resolve this script's real location, following symlinks (readlink -f is not portable).
+self=$0
+while [ -h "$self" ]; do
+  dir=$(cd "$(dirname "$self")" && pwd -P)
+  self=$(readlink "$self")
+  case $self in /*) ;; *) self="$dir/$self" ;; esac
+done
+here=$(cd "$(dirname "$self")" && pwd -P)
+bundle="$here/dist/selectr-schema.mjs"
+
+# A packaged skill (bin/package-skill) has no sources: it runs the bundle it ships.
+stale=0
+if [ ! -d "$here/src" ]; then
+  if [ ! -f "$bundle" ]; then
+    echo "selectr-schema: $bundle is missing; re-package the skill" >&2
+    exit 2
+  fi
+elif [ ! -f "$bundle" ]; then
+  stale=1
+else
+  root=$(cd "$here/../.." && pwd -P)
+  # Assigned on its own so a failing find aborts instead of reading as "fresh".
+  # All of src/lib, not just src/lib/model: the model imports its neighbours (colors.ts).
+  newer=$(find "$here/src" "$root/src/lib" "$here/build.config.ts" "$here/tsconfig.json" "$root/package.json" \
+    -type f ! -name '*.test.ts' -newer "$bundle" -print -quit)
+  [ -n "$newer" ] && stale=1
+fi
+
+if [ "$stale" = 1 ]; then
+  root=$(cd "$here/../.." && pwd -P)
+  if ! npm --prefix "$root" run --silent build:skill >&2; then
+    echo "selectr-schema: rebuilding the CLI failed (see above)" >&2
+    exit 2
+  fi
+fi
+
+exec node "$bundle" "$@"

@@ -1,0 +1,605 @@
+{
+  "format": "selectr-schema",
+  "version": 2,
+  "name": "Shop",
+  "description": "Generic sample shop model used by tests.",
+  "generatedAt": "2026-10-29T09:33:00Z",
+  "generator": {
+    "name": "selectr-schema-skill",
+    "version": "1.0.0"
+  },
+  "sources": [
+    {
+      "kind": "introspection",
+      "ref": "shop"
+    }
+  ],
+  "scope": {
+    "label": "Shop",
+    "column": "shop_id",
+    "entity": "shops",
+    "partitioned": true
+  },
+  "entities": {
+    "shops": {
+      "table": "shops",
+      "dbSchema": "public",
+      "label": "Shop",
+      "kind": "entity",
+      "primaryKey": [
+        "id"
+      ],
+      "scoped": false,
+      "titleColumns": [
+        "name"
+      ],
+      "searchColumns": [
+        "name"
+      ],
+      "columns": {
+        "id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "name": {
+          "type": "text",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "timestamptz",
+          "nullable": false
+        }
+      }
+    },
+    "customers": {
+      "table": "customers",
+      "dbSchema": "public",
+      "label": "Customer",
+      "kind": "entity",
+      "primaryKey": [
+        "shop_id",
+        "id"
+      ],
+      "scoped": true,
+      "titleColumns": [
+        "email"
+      ],
+      "searchColumns": [
+        "email"
+      ],
+      "defaultSort": {
+        "column": "created_at",
+        "direction": "desc"
+      },
+      "columns": {
+        "shop_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "email": {
+          "type": "text",
+          "nullable": false,
+          "sensitive": true
+        },
+        "created_at": {
+          "type": "timestamptz",
+          "nullable": false
+        }
+      }
+    },
+    "orders": {
+      "table": "orders",
+      "dbSchema": "public",
+      "label": "Order",
+      "kind": "entity",
+      "primaryKey": [
+        "shop_id",
+        "id"
+      ],
+      "scoped": true,
+      "titleColumns": [
+        "reference"
+      ],
+      "searchColumns": [
+        "reference"
+      ],
+      "defaultSort": {
+        "column": "created_at",
+        "direction": "desc"
+      },
+      "columns": {
+        "shop_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "customer_id": {
+          "type": "uuid",
+          "nullable": true
+        },
+        "reference": {
+          "type": "text",
+          "nullable": false
+        },
+        "total_amount": {
+          "type": "numeric",
+          "nullable": false
+        },
+        "payload": {
+          "type": "jsonb",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "timestamptz",
+          "nullable": false
+        }
+      },
+      "computedFields": [
+        {
+          "name": "payment_method",
+          "source": "payload",
+          "path": [
+            "payment",
+            "method"
+          ],
+          "type": "text"
+        }
+      ]
+    },
+    "disputes": {
+      "table": "disputes",
+      "dbSchema": "public",
+      "label": "Dispute",
+      "description": "A chargeback or inquiry raised against an order.",
+      "kind": "entity",
+      "primaryKey": [
+        "shop_id",
+        "id"
+      ],
+      "scoped": true,
+      "titleColumns": [
+        "network",
+        "reason_code",
+        "stage",
+        "status"
+      ],
+      "searchColumns": [
+        "reference"
+      ],
+      "defaultSort": {
+        "column": "created_at",
+        "direction": "desc"
+      },
+      "lookupKeys": [
+        {
+          "column": "source_id",
+          "kind": "source"
+        }
+      ],
+      "columns": {
+        "shop_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "order_id": {
+          "type": "uuid",
+          "nullable": true
+        },
+        "network": {
+          "type": "text",
+          "nullable": false
+        },
+        "reason_code": {
+          "type": "text",
+          "nullable": true
+        },
+        "stage": {
+          "type": "text",
+          "nullable": false,
+          "allowedValues": [
+            "inquiry",
+            "chargeback",
+            "arbitration"
+          ],
+          "allowedValuesOpen": false
+        },
+        "status": {
+          "type": "text",
+          "nullable": false
+        },
+        "reference": {
+          "type": "text",
+          "nullable": true,
+          "sensitive": true
+        },
+        "source_id": {
+          "type": "text",
+          "nullable": true
+        },
+        "created_at": {
+          "type": "timestamptz",
+          "nullable": false
+        }
+      }
+    },
+    "documents": {
+      "table": "documents",
+      "dbSchema": "public",
+      "label": "Document",
+      "kind": "entity",
+      "primaryKey": [
+        "shop_id",
+        "id"
+      ],
+      "scoped": true,
+      "titleColumns": [
+        "file_name"
+      ],
+      "defaultSort": {
+        "column": "created_at",
+        "direction": "desc"
+      },
+      "columns": {
+        "shop_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "entity_type": {
+          "type": "text",
+          "nullable": false
+        },
+        "entity_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "file_name": {
+          "type": "text",
+          "nullable": false
+        },
+        "created_at": {
+          "type": "timestamptz",
+          "nullable": false
+        }
+      }
+    },
+    "evidence": {
+      "table": "evidence",
+      "dbSchema": "public",
+      "label": "Evidence",
+      "kind": "entity",
+      "primaryKey": [
+        "shop_id",
+        "id"
+      ],
+      "scoped": true,
+      "titleColumns": [
+        "kind"
+      ],
+      "columns": {
+        "shop_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "dispute_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "kind": {
+          "type": "text",
+          "nullable": false
+        },
+        "document_ids": {
+          "type": "uuid[]",
+          "nullable": true
+        }
+      }
+    },
+    "reason_codes": {
+      "table": "reason_codes",
+      "dbSchema": "public",
+      "label": "Reason code",
+      "kind": "reference",
+      "primaryKey": [
+        "network",
+        "code"
+      ],
+      "scoped": false,
+      "titleColumns": [
+        "code",
+        "description"
+      ],
+      "columns": {
+        "network": {
+          "type": "text",
+          "nullable": false
+        },
+        "code": {
+          "type": "text",
+          "nullable": false
+        },
+        "description": {
+          "type": "text",
+          "nullable": true
+        }
+      }
+    },
+    "dispute_events": {
+      "table": "dispute_events",
+      "dbSchema": "public",
+      "label": "Dispute event",
+      "kind": "event",
+      "primaryKey": [
+        "shop_id",
+        "id"
+      ],
+      "scoped": true,
+      "titleColumns": [
+        "event_type"
+      ],
+      "defaultSort": {
+        "column": "recorded_at",
+        "direction": "desc"
+      },
+      "timeline": {
+        "timestampColumn": "recorded_at",
+        "summaryColumns": [
+          "event_type",
+          "to_stage"
+        ]
+      },
+      "columns": {
+        "shop_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "dispute_id": {
+          "type": "uuid",
+          "nullable": false
+        },
+        "event_type": {
+          "type": "text",
+          "nullable": false
+        },
+        "to_stage": {
+          "type": "text",
+          "nullable": true
+        },
+        "recorded_at": {
+          "type": "timestamptz",
+          "nullable": false
+        },
+        "actor_id": {
+          "type": "uuid",
+          "nullable": true
+        }
+      }
+    }
+  },
+  "relations": [
+    {
+      "id": "orders.customer_id->customers",
+      "from": "orders",
+      "to": "customers",
+      "join": [
+        {
+          "from": "shop_id",
+          "to": "shop_id"
+        },
+        {
+          "from": "customer_id",
+          "to": "id"
+        }
+      ],
+      "cardinality": "many_to_one",
+      "name": "Customer",
+      "inverseName": "Orders",
+      "provenance": "foreign_key",
+      "confidence": "high",
+      "note": null
+    },
+    {
+      "id": "disputes.order_id->orders",
+      "from": "disputes",
+      "to": "orders",
+      "join": [
+        {
+          "from": "shop_id",
+          "to": "shop_id"
+        },
+        {
+          "from": "order_id",
+          "to": "id"
+        }
+      ],
+      "cardinality": "many_to_one",
+      "name": "Order",
+      "inverseName": "Disputes",
+      "provenance": "foreign_key",
+      "confidence": "high",
+      "note": null
+    },
+    {
+      "id": "disputes.(network,reason_code)->reason_codes",
+      "from": "disputes",
+      "to": "reason_codes",
+      "join": [
+        {
+          "from": "network",
+          "to": "network"
+        },
+        {
+          "from": "reason_code",
+          "to": "code"
+        }
+      ],
+      "cardinality": "many_to_one",
+      "name": "Reason code",
+      "inverseName": "Disputes",
+      "provenance": "curated",
+      "confidence": "high",
+      "note": null
+    },
+    {
+      "id": "documents.entity_id[entity_type=dispute]->disputes",
+      "from": "documents",
+      "to": "disputes",
+      "join": [
+        {
+          "from": "shop_id",
+          "to": "shop_id"
+        },
+        {
+          "from": "entity_id",
+          "to": "id"
+        }
+      ],
+      "condition": {
+        "side": "from",
+        "column": "entity_type",
+        "equals": "dispute"
+      },
+      "cardinality": "many_to_one",
+      "name": "Dispute",
+      "inverseName": "Documents",
+      "provenance": "curated",
+      "confidence": "medium",
+      "note": null
+    },
+    {
+      "id": "evidence.dispute_id->disputes",
+      "from": "evidence",
+      "to": "disputes",
+      "join": [
+        {
+          "from": "shop_id",
+          "to": "shop_id"
+        },
+        {
+          "from": "dispute_id",
+          "to": "id"
+        }
+      ],
+      "cardinality": "many_to_one",
+      "name": "Dispute",
+      "inverseName": "Evidence",
+      "provenance": "foreign_key",
+      "confidence": "high",
+      "note": null
+    },
+    {
+      "id": "evidence.document_ids->documents",
+      "from": "evidence",
+      "to": "documents",
+      "join": [
+        {
+          "from": "shop_id",
+          "to": "shop_id"
+        },
+        {
+          "from": "document_ids",
+          "to": "id",
+          "match": "array"
+        }
+      ],
+      "cardinality": "many_to_many",
+      "name": "Documents",
+      "inverseName": "Evidence",
+      "provenance": "curated",
+      "confidence": "high",
+      "note": null
+    },
+    {
+      "id": "dispute_events.dispute_id->disputes",
+      "from": "dispute_events",
+      "to": "disputes",
+      "join": [
+        {
+          "from": "shop_id",
+          "to": "shop_id"
+        },
+        {
+          "from": "dispute_id",
+          "to": "id"
+        }
+      ],
+      "cardinality": "many_to_one",
+      "name": "Dispute",
+      "inverseName": "Events",
+      "provenance": "foreign_key",
+      "confidence": "high",
+      "note": null
+    },
+    {
+      "id": "disputes.shop_id->shops",
+      "from": "disputes",
+      "to": "shops",
+      "join": [
+        {
+          "from": "shop_id",
+          "to": "id"
+        }
+      ],
+      "cardinality": "many_to_one",
+      "name": "Shop",
+      "inverseName": "Disputes",
+      "provenance": "curated",
+      "confidence": "high",
+      "note": null
+    }
+  ],
+  "groups": [
+    {
+      "label": "Disputes",
+      "entities": [
+        "disputes",
+        "documents",
+        "evidence",
+        "dispute_events"
+      ]
+    },
+    {
+      "label": "Commerce",
+      "entities": [
+        "shops",
+        "customers",
+        "orders"
+      ]
+    },
+    {
+      "label": "Reference",
+      "entities": [
+        "reason_codes"
+      ]
+    }
+  ],
+  "unresolved": [
+    {
+      "entity": "dispute_events",
+      "column": "actor_id",
+      "note": "target table not built yet"
+    }
+  ]
+}

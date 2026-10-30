@@ -1,0 +1,18 @@
+{
+  "name": "selectr-skill",
+  "owner": { "name": "Daniel Mantilla" },
+  "metadata": {
+    "description": "Agent skills for Selectr",
+    "version": "1.0.2"
+  },
+  "plugins": [
+    {
+      "name": "selectr-schema",
+      "description": "Generate or update a Selectr schema (v2 base plus review report) for a PostgreSQL database",
+      "source": "./",
+      "strict": false,
+      "version": "1.0.2",
+      "skills": ["./skills/selectr-schema"]
+    }
+  ]
+}
